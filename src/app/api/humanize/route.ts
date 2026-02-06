@@ -5,7 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { checkFreeTrial } from "@/lib/free-trial";
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const groq = new OpenAI({ 
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1"
+});
 
 export async function POST(req: Request) {
   try {
@@ -25,9 +28,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: reason }, { status: 403 });
     }
 
-    // Call OpenAI to rewrite
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    // Call Groq to rewrite
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: "Rewrite this text to sound more human-like and natural." },
         { role: "user", content: text },
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
 
     const humanized = response.choices[0]?.message?.content || "";
 
-    return NextResponse.json({ humanized });
+    return NextResponse.json({ humanizedText: humanized });
   } catch (err) {
     console.error("Humanize error:", err);
     return NextResponse.json({ error: "Failed to humanize" }, { status: 500 });

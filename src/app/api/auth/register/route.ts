@@ -27,15 +27,13 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await bcrypt.hash(password, 12);
     
-    // This now matches YOUR schema exactly
+    // Create user with schema fields
     const user = await prisma.user.create({
       data: {
-        email: email,           // from your schema
-        name: name,             // from your schema
-        passwordHash: passwordHash, // newly added field
-        freeChecksUsed: 0,      // from your schema
-        // plan is managed in the Subscription model in your schema
-        // so we don't set it here on the User model
+        email: email,
+        name: name,
+        passwordHash: passwordHash,
+        isPro: false,
       },
     });
 

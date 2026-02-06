@@ -8,8 +8,8 @@ import Providers from './providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AI Humanizer',
-  description: 'Check AI. Humanize AI. Sound Human.',
+  title: 'Phrasit - AI Text Paraphraser',
+  description: 'Detect and paraphrase AI-generated text into natural, human-like content with Phrasit.',
 };
 
 export default function RootLayout({

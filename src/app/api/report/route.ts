@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
       typeof body?.wordCount === "number"
         ? body.wordCount
         : content.split(/\s+/).filter(Boolean).length;
+    const aiScore: number = typeof body?.score === "number" ? body.score : 0;
+    const humanScore: number = 100 - aiScore;
 
     // sanitize text to avoid WinAnsi errors
     const sanitize = (s: string) =>
@@ -27,284 +29,324 @@ export async function POST(req: NextRequest) {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // load logo (PNG preferred)
-    const logoPathPng = path.join(process.cwd(), "public", "Quillbot-Logo.png");
-    const logoPathJpg = path.join(process.cwd(), "public", "Quillbot-Logo.jpg");
-    let logoImage: any = undefined;
-    if (fs.existsSync(logoPathPng)) {
-      logoImage = await pdfDoc.embedPng(fs.readFileSync(logoPathPng));
-    } else if (fs.existsSync(logoPathJpg)) {
-      logoImage = await pdfDoc.embedJpg(fs.readFileSync(logoPathJpg));
-    }
+    // Color scheme - Modern violet/indigo theme
+    const primaryColor = rgb(0.45, 0.3, 0.7); // violet
+    const secondaryColor = rgb(0.3, 0.35, 0.65); // indigo
+    const accentColor = rgb(0.58, 0.4, 0.85); // lighter violet
+    const lightBg = rgb(0.97, 0.97, 0.99);
+    const darkText = rgb(0.15, 0.15, 0.2);
+    const grayText = rgb(0.45, 0.45, 0.5);
 
     //
-    // ---------- HEADER ----------
+    // ---------- MODERN HEADER ----------
     //
-    const leftX = 50;
-    const headerY = height - 40;
-
-    page.drawText("AI Detector report by", {
-      x: leftX,
-      y: headerY + 10,
-      size: 11,
-      font,
+    const headerHeight = 80;
+    // Gradient effect simulation with rectangles
+    page.drawRectangle({
+      x: 0,
+      y: height - headerHeight,
+      width: width,
+      height: headerHeight,
+      color: primaryColor,
+    });
+    
+    page.drawRectangle({
+      x: width * 0.6,
+      y: height - headerHeight,
+      width: width * 0.4,
+      height: headerHeight,
+      color: secondaryColor,
+      opacity: 0.8,
     });
 
-    const logoW = 92;
-    const logoH = 28;
-    if (logoImage) {
-      page.drawImage(logoImage, {
-        x: leftX,
-        y: headerY - 16,
-        width: logoW,
-        height: logoH,
-      });
-    }
+    // Logo/Brand Name
+    page.drawText("PHRASIT", {
+      x: 50,
+      y: height - 45,
+      size: 32,
+      font: fontBold,
+      color: rgb(1, 1, 1),
+    });
+    
+    page.drawText("AI Content Analysis Report", {
+      x: 50,
+      y: height - 65,
+      size: 11,
+      font,
+      color: rgb(0.95, 0.95, 0.98),
+    });
 
-    // Date/time aligned in same horizontal band, to right of logo
-    const dateX = leftX + (logoImage ? logoW + 18 : 0);
-    page.drawText(new Date().toLocaleString(), {
-      x: dateX,
-      y: headerY - 6,
+    // Date and Report ID on right
+    const reportDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    const reportId = `#${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
+    page.drawText(reportDate, {
+      x: width - 180,
+      y: height - 40,
+      size: 10,
+      font,
+      color: rgb(0.95, 0.95, 0.98),
+    });
+    
+    page.drawText(`Report ${reportId}`, {
+      x: width - 180,
+      y: height - 55,
       size: 9,
-      
-    });
-
-    // Header right: version and word count
-    const rightX = width - 180;
-    page.drawText("Version 2025-v5.5.0", {
-      x: rightX,
-      y: headerY + 10,
-      size: 10,
-      
-    });
-    page.drawText(` ${wordCount} Words`, {
-      x: rightX,
-      y: headerY - 6,
-      size: 10,
-    //   font: fontBold,
-    });  
-
-    //
-    // ---------- RESULTS BOX ----------
-    //
-    const boxX = 40;
-    const boxTopY = headerY - 70;
-    const boxW = width - 80;
-    const boxH = 200;
-
-    page.drawRectangle({
-      x: boxX,
-      y: boxTopY - boxH,
-      width: boxW,
-      height: boxH,
-      color: rgb(0.99, 0.99, 0.99),
-      borderColor: rgb(0.94, 0.94, 0.94),
-      borderWidth: 0.4,
-    });
-
-    //
-    // ---------- LEFT COLUMN ----------
-    //
-    const leftColX = boxX + 100;
-    const bigPctY = boxTopY - 36;
-
-    page.drawText("0%", { x: leftColX, y: bigPctY, size: 38, font: fontBold });
-    page.drawText("of text is likely AI", {
-      x: leftColX,
-      y: bigPctY - 26,
-      size: 11,
       font,
+      color: rgb(0.85, 0.85, 0.9),
     });
 
-    // logo under the text
-    if (logoImage) {
-      page.drawImage(logoImage, {
-        x: leftColX,
-        y: bigPctY - 60,
-        width: logoW,
-        height: logoH,
-      });
+    //
+    // ---------- SIMPLIFIED RESULTS SECTION ----------
+    //
+    const sectionY = height - 140;
+    
+    // Main result card - clean and simple
+    const cardX = 50;
+    const cardWidth = width - 100;
+    const cardHeight = 140;
+    
+    page.drawRectangle({
+      x: cardX,
+      y: sectionY - cardHeight,
+      width: cardWidth,
+      height: cardHeight,
+      color: lightBg,
+      borderColor: rgb(0.88, 0.88, 0.92),
+      borderWidth: 1,
+    });
+
+    // Accent bar on left
+    page.drawRectangle({
+      x: cardX,
+      y: sectionY - cardHeight,
+      width: 6,
+      height: cardHeight,
+      color: accentColor,
+    });
+
+    // Content inside card
+    const contentX = cardX + 35;
+    
+    page.drawText("ANALYSIS RESULT", {
+      x: contentX,
+      y: sectionY - 30,
+      size: 10,
+      font,
+      color: grayText,
+    });
+    
+    // Determine result color based on AI score
+    let resultColor = primaryColor;
+    let resultText = "AI-Generated Content Detected";
+    
+    if (aiScore < 30) {
+      resultColor = rgb(0.3, 0.75, 0.5); // Green for human
+      resultText = "Human-Written Content";
+    } else if (aiScore < 70) {
+      resultColor = rgb(0.95, 0.65, 0.2); // Orange for mixed
+      resultText = "Mixed/Uncertain Content";
+    } else {
+      resultColor = rgb(0.85, 0.4, 0.3); // Red for AI
+      resultText = "AI-Generated Content Detected";
     }
-
-    // chart under logo
-    const chartX = leftColX;
-    const chartY = bigPctY - 120;
-    const chartWidth = 160;
-
-    page.drawRectangle({
-      x: chartX,
-      y: chartY,
-      width: chartWidth,
-      height: 2,
-      color: rgb(0.85, 0.85, 0.85),
+    
+    page.drawText(`${aiScore}%`, {
+      x: contentX,
+      y: sectionY - 70,
+      size: 52,
+      font: fontBold,
+      color: resultColor,
+    });
+    
+    page.drawText(resultText, {
+      x: contentX + 120,
+      y: sectionY - 58,
+      size: 13,
+      font: fontBold,
+      color: darkText,
     });
 
-    // short human bar (vertical height-based box on right side)
-    const humanBarWidth = 44;
-    const humanBarHeight = 44;
-    const humanBarX = chartX + chartWidth - humanBarWidth;
-    const humanBarY = chartY;
-    page.drawRectangle({
-      x: humanBarX,
-      y: humanBarY,
-      width: humanBarWidth,
-      height: humanBarHeight,
-      color: rgb(0.7, 0.88, 1),
-      borderColor: rgb(0.7, 0.82, 0.95),
-      borderWidth: 0.5,
-    });
-
-    page.drawText("AI", { x: chartX, y: chartY - 14, size: 10, font });
-    page.drawText("Human", {
-      x: chartX + chartWidth - 28,
-      y: chartY - 14,
+    // Word count info
+    page.drawText(`${wordCount} Words Analyzed`, {
+      x: contentX + 120,
+      y: sectionY - 80,
       size: 10,
       font,
+      color: grayText,
+    });
+
+    // Simple confidence bar
+    page.drawText("CONFIDENCE:", {
+      x: contentX,
+      y: sectionY - 110,
+      size: 9,
+      font,
+      color: grayText,
+    });
+    
+    const barX = contentX + 85;
+    const barY = sectionY - 113;
+    const barWidth = 200;
+    
+    // Background bar
+    page.drawRectangle({
+      x: barX,
+      y: barY,
+      width: barWidth,
+      height: 8,
+      color: rgb(0.92, 0.92, 0.94),
+    });
+    
+    // Filled bar based on confidence (higher for extreme values)
+    const confidenceLevel = aiScore < 30 || aiScore > 70 ? "High" : "Medium";
+    const confidenceFill = aiScore < 30 || aiScore > 70 ? barWidth * 0.85 : barWidth * 0.6;
+    const confidenceColor = aiScore < 30 || aiScore > 70 ? rgb(0.3, 0.75, 0.5) : rgb(0.95, 0.65, 0.2);
+    
+    page.drawRectangle({
+      x: barX,
+      y: barY,
+      width: confidenceFill,
+      height: 8,
+      color: confidenceColor,
+    });
+    
+    page.drawText(confidenceLevel, {
+      x: barX + barWidth + 10,
+      y: barY,
+      size: 9,
+      font: fontBold,
+      color: confidenceColor,
     });
 
     //
-    // ---------- LEGEND (RIGHT COLUMN) ----------
+    // ---------- CLASSIFICATION BREAKDOWN ----------
     //
-    const legendStartX = boxX + boxW / 2 + 20;
-    let legendY = boxTopY - 22;
-    const legendRowGap = 30;
+    const breakdownY = sectionY - cardHeight - 50;
+    
+    page.drawText("Content Classification", {
+      x: cardX,
+      y: breakdownY,
+      size: 14,
+      font: fontBold,
+      color: darkText,
+    });
 
-    const legends = [
-      { label: "AI-generated", pct: "0%", color: rgb(1, 0.55, 0.1) },
-      { label: "AI-generated & AI-refined", pct: "0%", color: rgb(1, 0.82, 0.86) },
-      { label: "Human-written & AI-refined", pct: "0%", color: rgb(0.7, 0.88, 1) },
-      { label: "Human-written", pct: "100%", color: rgb(1, 1, 1) },
+    // Simple list view
+    const items = [
+      { label: "Human-Written", value: `${humanScore}%`, color: rgb(0.3, 0.75, 0.5) },
+      { label: "AI-Generated", value: `${aiScore}%`, color: rgb(0.85, 0.4, 0.3) },
     ];
 
-    for (const L of legends) {
-      const words = L.label.split(" ");
-      const maxChars = 22;
-      let line = "";
-      const lines: string[] = [];
-
-      for (const w of words) {
-        if ((line + " " + w).trim().length > maxChars) {
-          lines.push(line.trim());
-          line = w;
-        } else {
-          line += " " + w;
-        }
-      }
-      if (line.trim()) lines.push(line.trim());
-
-      let textY = legendY;
-
-      for (let i = 0; i < lines.length; i++) {
-        const txt = lines[i];
-        page.drawText(txt, { x: legendStartX, y: textY, size: 10, font });
-
-        if (i === lines.length - 1) {
-          const textWidth = font.widthOfTextAtSize(txt, 10);
-          const infoX = legendStartX + textWidth + 6;
-
-          page.drawCircle({
-            x: infoX + 3,
-            y: textY + 4,
-            size: 6,
-            color: rgb(0.95, 0.96, 0.98),
-            borderColor: rgb(0.8, 0.82, 0.85),
-            borderWidth: 0.4,
-          });
-          page.drawText("i", {
-            x: infoX + 0.5,
-            y: textY + 1,
-            size: 7,
-            font,
-            color: rgb(0.25, 0.28, 0.45),
-          });
-        }
-        textY -= 12;
-      }
-
-      // color dot fixed
+    let itemY = breakdownY - 25;
+    
+    items.forEach(item => {
+      // Color indicator
       page.drawCircle({
-        x: legendStartX + 100,
-        y: legendY + 4,
-        size: 6,
-        color: L.color,
-        borderColor: rgb(0.85, 0.86, 0.88),
-        borderWidth: 0.4,
+        x: cardX + 10,
+        y: itemY + 5,
+        size: 5,
+        color: item.color,
       });
-
-      // percentage fixed
-      page.drawText(L.pct, {
-        x: legendStartX + 120,
-        y: legendY,
-        size: 10,
-        // font: fontBold,
+      
+      // Label
+      page.drawText(item.label, {
+        x: cardX + 25,
+        y: itemY,
+        size: 11,
+        font,
+        color: darkText,
       });
-
-      legendY -= legendRowGap;
-    }
+      
+      // Value
+      page.drawText(item.value, {
+        x: cardX + 200,
+        y: itemY,
+        size: 11,
+        font: fontBold,
+        color: item.color,
+      });
+      
+      itemY -= 25;
+    });
 
     //
-    // ---------- RESULT ROW ----------
+    // ---------- DISCLAIMER ----------
     //
-    const resultRowY = boxTopY - boxH - 30;
+    const disclaimerY = breakdownY - 130;
+    
     page.drawRectangle({
-      x: boxX,
-      y: resultRowY,
-      width: boxW,
-      height: 36,
-      color: rgb(0.985, 0.985, 0.987),
+      x: cardX,
+      y: disclaimerY - 45,
+      width: cardWidth,
+      height: 45,
+      color: rgb(0.96, 0.94, 0.98),
+      borderColor: accentColor,
+      borderWidth: 0.5,
+    });
+    
+    // Info circle
+    page.drawCircle({
+      x: cardX + 18,
+      y: disclaimerY - 20,
+      size: 10,
+      color: primaryColor,
       borderWidth: 0,
     });
-    page.drawText("Result: Human-written (100%)", {
-      x: boxX + 16,
-      y: resultRowY + 10,
-      size: 11,
+    
+    page.drawText("i", {
+      x: cardX + 15,
+      y: disclaimerY - 24,
+      size: 14,
       font: fontBold,
+      color: rgb(1, 1, 1),
     });
-
-    //
-    // ---------- CAUTION BOX ----------
-    //
-    const cautionY = resultRowY - 50;
-    page.drawRectangle({
-      x: boxX,
-      y: cautionY - 6,
-      width: boxW,
-      height: 50,
-      color: rgb(1, 0.94, 0.95),
-      borderColor: rgb(1, 0.88, 0.9),
-      borderWidth: 0.4,
-    });
-
-    page.drawSvgPath(
-      `M ${boxX + 12} ${cautionY} L ${boxX + 28} ${cautionY} L ${boxX + 20} ${cautionY + 18} Z`,
-      { color: rgb(1, 0.9, 0.55), borderColor: rgb(1, 0.75, 0.2), borderWidth: 0.6 }
-    );
-    page.drawText("!", {
-      x: boxX + 16,
-      y: cautionY + 2,
-      size: 10,
-      font: fontBold,
-      color: rgb(0.15, 0.12, 0.06),
-    });
-
-    const cautionTextX = boxX + 40;
+    
     page.drawText(
-      "Caution: Our AI Detector is advanced, but no detectors are 100% reliable, no matter what their accuracy scores claim.",
-      { x: cautionTextX, y: cautionY + 20, size: 9, font }
+      "Important: AI detection is an estimation based on linguistic patterns and writing style.",
+      { x: cardX + 40, y: disclaimerY - 15, size: 9, font: fontBold, color: darkText }
     );
     page.drawText(
-      "Never use AI detection alone to make decisions that could impact a person's career or academic standing.",
-      { x: cautionTextX, y: cautionY + 6, size: 9, font }
+      "This analysis should be used as guidance only. Results may vary and are not 100% definitive.",
+      { x: cardX + 40, y: disclaimerY - 30, size: 9, font, color: grayText }
     );
 
     //
-    // ---------- CONTENT ----------
+    // ---------- ANALYZED CONTENT ----------
+    //0
+
     //
-    let textY = cautionY - 50;
+    // ---------- ANALYZED CONTENT ----------
+    //
+    let textY = disclaimerY - 70;
     const marginLeft = 50;
     const maxTextWidth = width - 100;
     const lineHeight = 14;
+
+    page.drawText("Analyzed Content", {
+      x: marginLeft,
+      y: textY,
+      size: 14,
+      font: fontBold,
+      color: darkText,
+    });
+    
+    textY -= 25;
+    
+    // Separator line
+    page.drawRectangle({
+      x: marginLeft,
+      y: textY + 5,
+      width: cardWidth,
+      height: 1,
+      color: rgb(0.88, 0.88, 0.92),
+    });
+    
+    textY -= 15;
 
     const drawParagraph = (pg: any, paragraph: string, startY: number) => {
       let y = startY;
@@ -312,12 +354,20 @@ export async function POST(req: NextRequest) {
       let line = "";
       for (let i = 0; i < words.length; i++) {
         const candidate = line ? line + " " + words[i] : words[i];
-        const w = font.widthOfTextAtSize(candidate + " ", 11);
+        const w = font.widthOfTextAtSize(candidate + " ", 10);
         if (w > maxTextWidth && line.length > 0) {
-          pg.drawText(line, { x: marginLeft, y, size: 11, font });
+          pg.drawText(line, { x: marginLeft, y, size: 10, font, color: darkText });
           line = words[i];
           y -= lineHeight;
           if (y < 60) {
+            // Add footer before new page
+            pg.drawText("Generated by Phrasit AI", {
+              x: width / 2 - 50,
+              y: 30,
+              size: 8,
+              font,
+              color: grayText,
+            });
             pg = pdfDoc.addPage(A4);
             y = A4[1] - 60;
           }
@@ -326,7 +376,7 @@ export async function POST(req: NextRequest) {
         }
       }
       if (line.length > 0) {
-        pg.drawText(line, { x: marginLeft, y, size: 11, font });
+        pg.drawText(line, { x: marginLeft, y, size: 10, font, color: darkText });
         y -= lineHeight;
       }
       return { page: pg, y };
@@ -337,6 +387,14 @@ export async function POST(req: NextRequest) {
       if (para.trim() === "") {
         textY -= lineHeight;
         if (textY < 60) {
+          // Add footer
+          page.drawText("Generated by Phrasit AI", {
+            x: width / 2 - 50,
+            y: 30,
+            size: 8,
+            font,
+            color: grayText,
+          });
           page = pdfDoc.addPage(A4);
           textY = A4[1] - 60;
         }
@@ -346,18 +404,35 @@ export async function POST(req: NextRequest) {
       page = out.page;
       textY = out.y - 6;
       if (textY < 80) {
+        // Add footer
+        page.drawText("Generated by Phrasit AI", {
+          x: width / 2 - 50,
+          y: 30,
+          size: 8,
+          font,
+          color: grayText,
+        });
         page = pdfDoc.addPage(A4);
         textY = A4[1] - 60;
       }
     }
 
+    // Footer on last page
+    page.drawText("Generated by Phrasit AI", {
+      x: width / 2 - 50,
+      y: 30,
+      size: 8,
+      font,
+      color: grayText,
+    });
+
     // finalize
     const pdfBytes = await pdfDoc.save();
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="ai-detection-report.pdf"',
+        "Content-Disposition": 'attachment; filename="phrasit-ai-detection-report.pdf"',
       },
     });
   } catch (err: any) {
