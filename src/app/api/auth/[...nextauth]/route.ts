@@ -19,7 +19,7 @@ export const authOptions: AuthOptions  = {
           where: { email: credentials.email },
         });
         
-        if (!user) return null;
+        if (!user || !user.passwordHash) return null;
         
         const isValid = await bcrypt.compare(
           credentials.password,
@@ -32,7 +32,7 @@ export const authOptions: AuthOptions  = {
           id: user.id,
           email: user.email,
           name: user.name,
-          plan: user.plan,
+          isPro: user.isPro,
         };
       },
     }),
@@ -41,14 +41,14 @@ export const authOptions: AuthOptions  = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.plan = (user as any).plan;
+        token.isPro = (user as any).isPro;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id;
-        (session.user as any).plan = token.plan;
+        (session.user as any).isPro = token.isPro;
       }
       return session;
     },
