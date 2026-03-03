@@ -71,9 +71,15 @@ export default function PricingPage(){
           <li className="flex items-start gap-3"><span className="text-indigo-300 text-lg">✓</span> Dedicated support</li>
         </ul>
         <a href="#" className="mt-6 block rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 text-center text-white text-sm sm:text-base font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 border border-indigo-400/30">
+          Contact Sales
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
     </div>
   );
-  }
+}
     
 
 
