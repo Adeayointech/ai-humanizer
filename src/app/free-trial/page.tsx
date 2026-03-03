@@ -123,30 +123,30 @@ export default function FreeTrialPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-950 via-indigo-950 to-purple-950">
       <Navigation />
-      <main className="py-6 px-4">
+      <main className="py-4 sm:py-6 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-5">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-lg mb-2">
+        <div className="text-center mb-4 sm:mb-5">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-lg mb-2">
             AI Content Detector & Paraphraser
           </h1>
-          <p className="text-violet-200 text-sm max-w-2xl mx-auto">
+          <p className="text-violet-200 text-xs sm:text-sm max-w-2xl mx-auto px-4">
             Analyze your text for AI-generated content and paraphrase it naturally.
           </p>
         </div>
 
         {/* Side by Side Text Boxes - Always Visible */}
-        <div className="grid md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Left: Input Text */}
-          <div className="backdrop-blur-lg bg-gradient-to-br from-violet-900/60 to-indigo-900/60 rounded-2xl shadow-2xl p-5 border border-violet-500/40">
+          <div className="backdrop-blur-lg bg-gradient-to-br from-violet-900/60 to-indigo-900/60 rounded-2xl shadow-2xl p-4 sm:p-5 border border-violet-500/40">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-violet-300">Original Text</h3>
-              <span className="text-xs bg-violet-500/40 text-violet-200 px-3 py-1 rounded-full backdrop-blur-sm">
+              <h3 className="text-base sm:text-lg font-bold text-violet-300">Original Text</h3>
+              <span className="text-xs bg-violet-500/40 text-violet-200 px-2 sm:px-3 py-1 rounded-full backdrop-blur-sm">
                 {text.split(/\s+/).filter(Boolean).length} words
               </span>
             </div>
             <textarea
-              className="w-full bg-black/30 backdrop-blur-sm border-2 border-violet-500/30 rounded-xl p-4 focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-200 resize-none text-gray-100 placeholder-violet-300/60 min-h-[400px]"
+              className="w-full bg-black/30 backdrop-blur-sm border-2 border-violet-500/30 rounded-xl p-3 sm:p-4 focus:border-violet-500 focus:ring-2 focus:ring-violet-400/50 transition-all duration-200 resize-none text-gray-100 placeholder-violet-300/60 min-h-[300px] sm:min-h-[400px] text-sm sm:text-base"
               placeholder="Paste your text here to analyze or paraphrase..."
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -154,18 +154,18 @@ export default function FreeTrialPage() {
           </div>
 
           {/* Right: Paraphrased Output */}
-          <div className="backdrop-blur-lg bg-gradient-to-br from-indigo-900/60 to-purple-900/60 rounded-2xl shadow-2xl p-5 border border-indigo-500/40">
+          <div className="backdrop-blur-lg bg-gradient-to-br from-indigo-900/60 to-purple-900/60 rounded-2xl shadow-2xl p-4 sm:p-5 border border-indigo-500/40">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-indigo-300">Paraphrased Text</h3>
+              <h3 className="text-base sm:text-lg font-bold text-indigo-300">Paraphrased Text</h3>
               <div className="flex gap-2">
                 {humanized && (
-                  <span className="text-xs bg-green-500/40 text-green-200 px-3 py-1 rounded-full backdrop-blur-sm">
+                  <span className="text-xs bg-green-500/40 text-green-200 px-2 sm:px-3 py-1 rounded-full backdrop-blur-sm">
                     Ready
                   </span>
                 )}
               </div>
             </div>
-            <div className="w-full bg-black/30 backdrop-blur-sm border-2 border-indigo-500/30 rounded-xl p-4 min-h-[400px] text-gray-100">
+            <div className="w-full bg-black/30 backdrop-blur-sm border-2 border-indigo-500/30 rounded-xl p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] text-gray-100 text-sm sm:text-base">
               {humanized ? (
                 <div className="whitespace-pre-wrap">{humanized}</div>
               ) : (
@@ -175,7 +175,7 @@ export default function FreeTrialPage() {
             {humanized && (
               <button
                 onClick={handleCopy}
-                className="mt-3 w-full px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all duration-200 font-semibold flex items-center justify-center gap-2 shadow-lg"
+                className="mt-3 w-full px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all duration-200 font-semibold flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base"
               >
                 <span>📋</span>
                 Copy to Clipboard
@@ -185,11 +185,11 @@ export default function FreeTrialPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3 mb-4 justify-center">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4 justify-center">
           <button
             onClick={handleCheck}
             disabled={loading || !text.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center gap-2 border border-blue-400/30"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 border border-blue-400/30 text-sm sm:text-base"
           >
             {loading ? (
               <>
@@ -207,7 +207,7 @@ export default function FreeTrialPage() {
           <button
             onClick={handleHumanize}
             disabled={loading || !text.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-violet-700 hover:to-purple-700 transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center gap-2 border border-violet-400/30"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-violet-700 hover:to-purple-700 transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 border border-violet-400/30 text-sm sm:text-base"
           >
             {loading ? (
               <>
@@ -225,7 +225,7 @@ export default function FreeTrialPage() {
           {result !== null && (
             <button
               onClick={handleDownloadReport}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center gap-2 border border-purple-400/30"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 border border-purple-400/30 text-sm sm:text-base"
             >
               <span>📄</span>
               Download Report
@@ -235,25 +235,25 @@ export default function FreeTrialPage() {
 
         {/* Analysis Results */}
         {result !== null && (
-          <div className={`backdrop-blur-lg rounded-2xl shadow-2xl p-6 mb-4 border-2 transition-all duration-300 ${
+          <div className={`backdrop-blur-lg rounded-2xl shadow-2xl p-4 sm:p-6 mb-4 border-2 transition-all duration-300 ${
             result < 30 
               ? 'bg-green-900/50 border-green-500/40' 
               : result < 70 
               ? 'bg-yellow-900/50 border-yellow-500/40' 
               : 'bg-red-900/50 border-red-500/40'
           }`}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-xl font-semibold text-violet-200 mb-2">Analysis Result</h3>
-                <p className="text-violet-300">
-                  This text appears to be <span className={`font-bold text-xl ${getScoreColor(result)}`}>{result}% AI-generated</span>
+                <h3 className="text-lg sm:text-xl font-semibold text-violet-200 mb-2">Analysis Result</h3>
+                <p className="text-violet-300 text-sm sm:text-base">
+                  This text appears to be <span className={`font-bold text-lg sm:text-xl ${getScoreColor(result)}`}>{result}% AI-generated</span>
                 </p>
               </div>
-              <div className="text-right">
-                <div className={`text-5xl font-bold ${getScoreColor(result)}`}>
+              <div className="text-left sm:text-right">
+                <div className={`text-4xl sm:text-5xl font-bold ${getScoreColor(result)}`}>
                   {result}%
                 </div>
-                <div className="text-sm text-violet-300">AI Probability</div>
+                <div className="text-xs sm:text-sm text-violet-300">AI Probability</div>
               </div>
             </div>
             
